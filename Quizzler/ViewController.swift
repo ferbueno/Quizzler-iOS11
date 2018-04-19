@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     let allQuestions = QuestionBank()
     var pickedAnswer : Bool = false
     var questionIndex : Int = 0
+    var score : Int = 0
     
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
@@ -39,7 +40,10 @@ class ViewController: UIViewController {
     
     
     func updateUI() {
-      questionLabel.text = allQuestions.list[questionIndex].questionText
+        questionLabel.text = allQuestions.list[questionIndex].questionText
+        scoreLabel.text = "Score: \(score)"
+        progressLabel.text = "\(questionIndex + 1)/\(allQuestions.list.count)"
+        progressBar.frame.size.width = (view.frame.size.width / CGFloat(allQuestions.list.count))*CGFloat(questionIndex + 1)
     }
     
 
@@ -48,7 +52,7 @@ class ViewController: UIViewController {
             questionIndex += 1
             updateUI()
         } else {
-            startOver()
+            createAlert()
         }
     }
     
@@ -56,9 +60,10 @@ class ViewController: UIViewController {
     func checkAnswer() {
         let currentQuestionAnswer = allQuestions.list[questionIndex].answer
         if currentQuestionAnswer == pickedAnswer {
-            print("Correct")
+            ProgressHUD.showSuccess("Correct!")
+            score += 1
         } else {
-            print("Incorrect")
+            ProgressHUD.showError("Wrong!")
         }
         nextQuestion()
         
@@ -66,8 +71,23 @@ class ViewController: UIViewController {
     
     
     func startOver() {
-       questionIndex = 0
+        questionIndex = 0
+        score = 0
         updateUI()
+    }
+    
+    func createAlert(){
+        let alert = UIAlertController(title: "Awesome!", message: "Your score was \(score)! Care to try again?", preferredStyle: UIAlertControllerStyle.alert)
+        let action = UIAlertAction(title: "Start over", style: UIAlertActionStyle.default, handler: {
+            (UIAlertAction) in
+            self.startOver()
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) in
+            alert.dismiss(animated: true, completion: nil)
+            })
+        alert.addAction(action)
+        alert.addAction(cancelAction)
+        present(alert, animated: true, completion: nil)
     }
     
 
